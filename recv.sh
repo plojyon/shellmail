@@ -1,24 +1,15 @@
+#!/bin/bash
 #? Recieves a message from shellmail
-#? usage: echo "address" | send.sh
-#? usage: send.sh path/to/address_file
+#? usage: send.sh address
 #? depends: none
 #! ignores all input except the first line
+#? received messages are automatically b64 decoded
 
-# reads from stdin if called without arguments
-# otherwise attempts to interpret the argument as an input file
-
-# received messages are automatically b64 decoded
-if read address
-then
-	messages=$(curl -sG --data-urlencode "key=$address" http://83.212.127.188:8080)
-	for word in $messages
-	do
-		echo $(echo $word | base64 -d)
-	done
-fi < "${1:-/dev/stdin}"
-# The substitution ${1:-...} takes $1 if defined
-# otherwise the file name of the standard input of the own process is used.
-# https://stackoverflow.com/a/7045517
-
-# argument parsing
-# https://stackoverflow.com/a/29754866
+# TODO: if $1 is undefined, use a hardcoded private key
+messages=$(curl -sG --data-urlencode "key=$1" http://83.212.127.188:8080)
+# TODO: check if first word is ERROR:, then print it.
+for word in $messages
+do
+	echo $(echo $word | base64 -d)
+	# TODO: also attempt to decrypt the message with my private key
+done
